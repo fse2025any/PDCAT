@@ -32,30 +32,30 @@ C15, C16, C17, C18, C23, C25, C30, P4, P6, P8, P10, P16, P21, P22, P23, P27, P28
 The `initial_enable_probabilities_aqc.txt` contains the results of:
 
 - **PDCAT** 
-- Variant $PDCAT_{NoInitial}$  (i.e., removing initial enable probabilities acquisition part of PDCAT)
-- Variant $PDCAT_{10}$  (i.e., using 10 initial tuning programs for initial enable probabilities acquisition)
-- Variant $PDCAT_{20}$  (i.e., using 20 initial tuning programs for initial enable probabilities acquisition)
+- Variant PDCAT~{NoInitial}~ (i.e., removing initial enable probabilities acquisition part of PDCAT)
+- Variant PDCAT~{10}~  (i.e., using 10 initial tuning programs for initial enable probabilities acquisition)
+- Variant PDCAT~{20}~ (i.e., using 20 initial tuning programs for initial enable probabilities acquisition)
 
 The `tuning_on_program.txt` contains the results of:
 
 - **PDCAT**
-- Variant $PDCAT_{NoTuning}$ (i.e., removing tuning on target program part of PDCAT)
+- Variant PDCAT~{NoTuning}~ (i.e., removing tuning on target program part of PDCAT)
 
 The `combined_optimization_analysis.txt` contains the results of:
 
 - **PDCAT**
--  Variant $PDCAT_{NoComb}$  (i.e., removing combined optimization analysis part of PDCAT)
--  Variant $CFSCA_{Comb}$  (i.e., adding combined optimization analysis part to CFSCA)
--  Variant $CompTuner_{NoComb}$  (i.e., adding combined optimization analysis part to CompTuner)
--  Variant $SRTuner_{Comb}$  (i.e., adding combined optimization analysis part to SRTuner)
+-  Variant PDCAT~{NoComb}~  (i.e., removing combined optimization analysis part of PDCAT)
+-  Variant CFSCA~{Comb}~  (i.e., adding combined optimization analysis part to CFSCA)
+-  Variant CompTuner~{NoComb}~  (i.e., adding combined optimization analysis part to CompTuner)
+-  Variant SRTuner~{Comb}~  (i.e., adding combined optimization analysis part to SRTuner)
 
 The `common_optimization.txt` contains the results of:
 
 - **PDCAT**
-- Variant $PDCAT_{AllExp}$ (i.e., removing common optimizations part of PDCAT)
-- Variant $PDCAT_{O2}$ (i.e., replacing common optimizations -O1 with -O2 of PDCAT)
-- Variant $PDCAT_{O3}$ (i.e., replacing common optimizations -O1 with -O3 of PDCAT)
-- Variant $CFSCA_{O1}$ (i.e., adding common optimizations to CFSCA)
-- Variant $CompTuner_{O1}$ (i.e., adding common optimizations to CompTuner)
-- Variant $SRTuner_{O1}$ (i.e., adding common optimizations to SRTuner)
+- Variant PDCAT~{AllExp}~ (i.e., removing common optimizations part of PDCAT)
+- Variant PDCAT~{O2}~ (i.e., replacing common optimizations -O1 with -O2 of PDCAT)
+- Variant PDCAT~{O3}~ (i.e., replacing common optimizations -O1 with -O3 of PDCAT)
+- Variant CFSCA~{O1}~ (i.e., adding common optimizations to CFSCA)
+- Variant CompTuner~{O1}~ (i.e., adding common optimizations to CompTuner)
+- Variant SRTuner~{O1}~ (i.e., adding common optimizations to SRTuner)
 
