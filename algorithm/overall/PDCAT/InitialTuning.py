@@ -67,11 +67,95 @@ def read_flags_from_file(file_path):
         flags = file.read().strip()
     return [flag.strip() for flag in flags.split(',') if flag.strip()]
 
-def constraints_check(seq):
+def parse_constraints(file_path):
+    strong_dependency = []
+    weak_dependency = []
+    synergistic_relationship = []
+    current_category = None
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    for line in lines:
+        line = line.strip()
+        if line.startswith("Strong dependency:"):
+            current_category = "strong_dependency"
+        elif line.startswith("Weak dependency:"):
+            current_category = "weak_dependency"
+        elif line.startswith("Synergistic relationship:"):
+            current_category = "synergistic_relationship"
+        elif line:
+            if "->" in line:
+                constraints = [item.strip() for item in line.replace("->", ",").split(",")]
+            elif "and" in line:
+                constraints = [item.strip() for item in line.replace("and", ",").split(",")]
+            else:
+                continue
+            if current_category == "strong_dependency":
+                strong_dependency.append(constraints)
+            elif current_category == "weak_dependency":
+                weak_dependency.append(constraints)
+            elif current_category == "synergistic_relationship":
+                synergistic_relationship.append(constraints)
+    return {
+        "strong_dependency": strong_dependency,
+        "weak_dependency": weak_dependency,
+        "synergistic_relationship": synergistic_relationship
+    }
+
+def constraints_check(all_flags, constraints, seq):
     """
     Check sequence constraints
     """
-    return False
+    flag = False
+    strong_dependency = constraints['strong_dependency']
+    weak_dependency = constraints['weak_dependency']
+    synergistic_relationship = constraints['synergistic_relationship']
+    # strong dependcy check
+    for i in range(len(strong_dependency)):
+        if strong_dependency[i][0] in all_flags and strong_dependency[i][1] in all_flags:
+            idx1 = all_flags.index(strong_dependency[i][0])
+            idx2 = all_flags.index(strong_dependency[i][1])
+            if seq[idx1] == 0 and seq[idx2] == 1:
+                flag = True
+            else:
+                continue
+        else:
+            continue
+    # weak dependcy check
+    for i in range(len(weak_dependency)):
+        if 'and' in weak_dependency[i][0]:
+            two_flag = weak_dependency[i][0].split(' and ')
+            if two_flag[0] in all_flags and two_flag[1] in all_flags and weak_dependency[i][1] in all_flags:
+                idx1 = all_flags.index(two_flag[0])
+                idx2 = all_flags.index(two_flag[1])
+                idx3 = all_flags.index(weak_dependency[i][1])
+                if (seq[idx1] == 1 and seq[idx2] == 1) and seq[idx3] == 0:
+                    flag = True
+                else:
+                    continue
+            else:
+                continue
+        else:
+            if weak_dependency[i][0] in all_flags and weak_dependency[i][1] in all_flags:
+                idx1 = all_flags.index(weak_dependency[i][0])
+                idx2 = all_flags.index(weak_dependency[i][1])
+                if seq[idx1] == 1 and seq[idx2] == 0:
+                    flag = True
+                else:
+                    continue
+            else:
+                continue
+        # synergistic relationship check
+    for i in range(len(synergistic_relationship)):
+        if synergistic_relationship[i][0] in all_flags and synergistic_relationship[i][1] in all_flags:
+            idx1 = all_flags.index(synergistic_relationship[i][0])
+            idx2 = all_flags.index(synergistic_relationship[i][1])
+            if ((seq[idx1] == 1 and seq[idx2] == 0) or (seq[idx1] == 0 and seq[idx2] == 1)):
+                flag = True
+            else:
+                continue
+        else:
+            continue
+    return flag
 
 def generate_random_conf(x, all_flags):
     """ Generation 0-1 mapping for disable-enable options """
@@ -100,11 +184,11 @@ if __name__ == "__main__":
     parser.add_argument("--exec_param", type=str, default=None,
                         help="Execution parameter for the output executable (can be empty)")
     
-    
     parser.add_argument("--flag_path", type=str, required=True,
                         help="Tuning flags file")
     
-    
+    parser.add_argument("--constraints_path", type=str, required=True,
+                        help="Three type constraints")
     
     args = parser.parse_args()
     if args.exec_param:
@@ -121,13 +205,13 @@ if __name__ == "__main__":
         print('No flags')
 
     seqs = []
-    
+    all_constraints = parse_constraints(args.constraints_path)
     #include_path can be empty
     include_path = '-I /home/user/polybench-code/utilities /home/user/polybench-code/utilities/polybench.c'
     while(len(seqs) < 500):
         x = random.randint(0, 2 ** len(all_flags) - 1)
         seq = generate_random_conf(x, all_flags)
-        if(constraints_check(seq) == False):
+        if(constraints_check(all_flags,all_constraints,seq) == False):
             seqs.append(seq)
         else:
             continue

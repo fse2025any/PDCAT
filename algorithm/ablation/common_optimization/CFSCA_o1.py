@@ -342,8 +342,10 @@ class CFSCA:
         permutations = list(itertools.product([0, 1], repeat=10))
         seqs = []
         while len(seqs) < 1024 * 40:
-            x = random.randint(0, 2 ** self.dim - 1)
-            initial_training_instance = self.generate_random_conf(x)
+            x = random.randint(0, 2 ** (self.dim - 47) - 1) # -O1 are 47 flags
+            o1_training_instance = self.generate_random_conf(x)
+            common_flags = [1] * 47 
+            initial_training_instance = common_flags + o1_training_instance
             if initial_training_instance not in seqs:
                 seqs.append(initial_training_instance)
         for i in range(len(permutations)):
