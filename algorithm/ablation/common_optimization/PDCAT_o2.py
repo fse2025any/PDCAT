@@ -47,7 +47,7 @@ def get_objective_score(independent, k_iter, SOURCE_PATH, GCC_PATH, INCLUDE_PATH
     execute_terminal_command(cmd4)
     time_c = time_end - time_start   #time opt
     time_o3 = time.time()
-    command = f"{GCC_PATH} -O3 {opt} -c {INCLUDE_PATH} {SOURCE_PATH}/*.c"
+    command = f"{GCC_PATH} -O3 -c {INCLUDE_PATH} {SOURCE_PATH}/*.c"
     execute_terminal_command(command)
     command2 = f"{GCC_PATH} -o a.out -O3 -lm *.o"
     execute_terminal_command(command2)
@@ -128,7 +128,7 @@ def parse_constraints(file_path):
 
 
 class PDCAT:
-    def __init__(self, a, b, c, get_objective_score, source_path, gcc_path, include_path, exec_param, log_file, flags, seqs, constraints):
+    def __init__(self, a, b, c, get_objective_score, source_path, gcc_path, include_path, exec_param, log_file, flags, seqs, constraints, permax, permin):
         """
         :param a: parameter of initial process
         :param b: parameter of initial process
@@ -142,6 +142,8 @@ class PDCAT:
         :param flags: all flags
         :param seqs: all initial tuning sequences
         :param constraints: three type constraints
+        :param permax: best performance
+        :param permax: lowest performance
         """
         self.a = a
         self.b = b
@@ -157,6 +159,8 @@ class PDCAT:
         self.initial_seqs = seqs
         self.initial_pro = self.Obtain_initial_pro()
         self.constraints = constraints
+        self.permax = permax
+        self.permin = permin
 
     def constraints_check(self, seq):
         """
@@ -244,9 +248,6 @@ class PDCAT:
         seqs = [] # different flag combinations
         ts.append(0)
         time_zero = time.time()
-        flag = True
-        permin = 0.0
-        permax = 0.0
         Es = []
         common_flags =  [1] * 97 # -O1 flag number 97 109
         while ts[-1] < 5000:
@@ -257,21 +258,10 @@ class PDCAT:
                 seq = common_flags + explored_flags
             E = 0.0
             seqs.append(seq)
-            if(flag):
-                temp = self.get_objective_score(seq, len(ts), SOURCE_PATH=self.SOURCE_PATH, GCC_PATH=self.GCC_PATH, INCLUDE_PATH=self.INCLUDE_PATH, EXEC_PARAM=self.EXEC_PARAM, LOG_FILE=self.LOG_FILE, all_flags=self.all_flags)
-                res.append(temp)
-                permin = min(1.0, temp)
-                permax = max(1.0, temp)
-                E = (temp - permin) / (permax - permin)
-                Es.append(E)
-                flag = False
-            else:
-                temp = self.get_objective_score(seq, len(ts), SOURCE_PATH=self.SOURCE_PATH, GCC_PATH=self.GCC_PATH, INCLUDE_PATH=self.INCLUDE_PATH, EXEC_PARAM=self.EXEC_PARAM, LOG_FILE=self.LOG_FILE, all_flags=self.all_flags)
-                res.append(temp)
-                permin = min(permin, temp)
-                permax = max(permax, temp)
-                E = (temp - permin) / (permax - permin)
-                Es.append(E)
+            temp = self.get_objective_score(seq, len(ts), SOURCE_PATH=self.SOURCE_PATH, GCC_PATH=self.GCC_PATH, INCLUDE_PATH=self.INCLUDE_PATH, EXEC_PARAM=self.EXEC_PARAM, LOG_FILE=self.LOG_FILE, all_flags=self.all_flags)
+            res.append(temp)
+            E = (temp - self.permax) / (self.permax - self.permin)
+            Es.append(E)
             if E > sum(Es)/len(Es):
                 for i in range(len(self.initial_pro)):
                     self.initial_pro[i] = self.initial_pro[i] + self.c * (1 - self.initial_pro[i])
@@ -315,6 +305,12 @@ if __name__ == "__main__":
     parser.add_argument("--constraints_path", type=str, required=True,
                         help="Three type constraints")
     
+    parser.add_argument("--permax", type=float, required=True,
+                        help="Best performance of generated sequences")
+    
+    parser.add_argument("--permin", type=float, required=True,
+                        help="Lowest performance of generated sequences")
+    
     args = parser.parse_args()
     if args.exec_param:
         EXEC_PARAM = args.exec_param
@@ -347,6 +343,8 @@ if __name__ == "__main__":
     pdcat_params['flags'] = all_flags
     pdcat_params['seqs'] = good_sequence
     pdcat_params['constraints'] = all_constraints
+    pdcat_params['permax'] = args.permax
+    pdcat_params['permin'] = args.permin
     pd = PDCAT(**pdcat_params)
     pd.run()
     
