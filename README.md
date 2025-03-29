@@ -24,7 +24,7 @@ The folder `Results` contains all the results.
 - The folder `overall` contains all the results for overall experiment.
 - The folder `ablation` contains all the results for ablation study.
 
-We add a README file in the `result` folder to help you understand result data for our expriments.
+We add a README file in the `Results` folder to help you understand result data for our expriments.
 
 
 ## Note
